@@ -1,0 +1,1 @@
+# exiftool-google-takeout-helper-scripts
