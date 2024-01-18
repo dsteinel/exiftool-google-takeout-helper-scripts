@@ -3,8 +3,11 @@
 Most of the stuff is taken from here:
 [google-photos-takeout-scripts](https://github.com/m1rkwood/google-photos-takeout-scripts/tree/main) I only made some small adjustments to fit my needs.
 
+## WHY?
+Google takeout gives you the images with a wrong creation date. All media will have the export date as creation date. This is incorrect and needs to be changed.
+
 ## Get all data from google
-...
+Follow the instructions from google takeout
 
 ## Extract all archives
 After extracting all zip files with (please verify)
@@ -25,20 +28,19 @@ find . -name "*.zip" | xargs -I {} tar -xvf {} -C /path/to/extract/to
 For macOs, if you have brew installed, just install it using the brew install exiftool command. Otherwise, you can download the package here and install it manually: https://exiftool.org/install.html
 
 This command will take the photoTakenTime { timestamp: '' } out of the .json associated to a picture and integrate it as EXIF data in the picture as DateTimeOriginal. See the "useful scripts" section below to find additional tags that you can add to this command to get more data back into your pictures.
+
+This is my main task to also include geo data from the json and inplement it in the media. This works with all media formats I tested so far (jpg, jpeg, heic, png, mov, mp4)
+
+```
+exiftool -r -d %s -tagsfromfile "%d/%F.json" "-GPSAltitude<GeoDataAltitude" "-GPSLatitude<GeoDataLatitude" "-GPSLatitudeRef<GeoDataLatitude" "-GPSLongitude<GeoDataLongitude" "-GPSLongitudeRef<GeoDataLongitude" "-DateTimeOriginal<PhotoTakenTimeTimestamp" "-FileCreateDate<PhotoTakenTimeTimestamp" "-FileModifyDate<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
+```
+
+Use this one if you only want to replace the creation date of the image:
+
 ```
 exiftool -r -d %s -tagsfromfile "%d/%F.json" "-DateTimeOriginal<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
 ```
 
-Sometimes the file will end with .json instead of .jpg.json, so I also ran this command
-```
-exiftool -r -d %s -tagsfromfile "%d/%f.json" "-DateTimeOriginal<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
-```
-
-and 
-
-```
-exiftool -r -d %s -tagsfromfile "%d/%f.json" "-DateTimeOriginal<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
-```
 
 ## Change "Date modified" to "Date created" in file information
 ```
