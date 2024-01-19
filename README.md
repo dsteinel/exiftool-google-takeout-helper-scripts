@@ -19,9 +19,6 @@ find . -name "*.zip" | xargs -I {} tar -xvf {} -C /path/to/extract/to
 ### Windows
 ### Mac
 
-## Use Exiftools to write all data from json to image/video file
-...
-
 ## Rename data if needed
 
 ## Use json and apply to image
@@ -29,7 +26,7 @@ For macOs, if you have brew installed, just install it using the brew install ex
 
 This command will take the photoTakenTime { timestamp: '' } out of the .json associated to a picture and integrate it as EXIF data in the picture as DateTimeOriginal. See the "useful scripts" section below to find additional tags that you can add to this command to get more data back into your pictures.
 
-This is my main task to also include geo data from the json and inplement it in the media. This works with all media formats I tested so far (jpg, jpeg, heic, png, mov, mp4)
+This is my main task to also include geo data from the json and inplement it in the media. This works with most media formats (jpg, jpeg, heic, png, mov, mp4). NEF files don't seem to work.
 
 ```
 exiftool -r -d %s -tagsfromfile "%d/%F.json" "-GPSAltitude<GeoDataAltitude" "-GPSLatitude<GeoDataLatitude" "-GPSLatitudeRef<GeoDataLatitude" "-GPSLongitude<GeoDataLongitude" "-GPSLongitudeRef<GeoDataLongitude" "-DateTimeOriginal<PhotoTakenTimeTimestamp" "-FileCreateDate<PhotoTakenTimeTimestamp" "-FileModifyDate<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
