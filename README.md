@@ -38,6 +38,11 @@ Use this one if you only want to replace the creation date of the image:
 exiftool -r -d %s -tagsfromfile "%d/%F.json" "-DateTimeOriginal<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
 ```
 
+## Show all data infos
+```
+exiftool -time:all -G -a -s FILE
+```
+
 
 ## Change "Date modified" to "Date created" in file information
 ```
@@ -50,6 +55,16 @@ exiftool "-filemodifydate<mediacreatedate" "-filecreatedate<mediacreatedate" ./*
 If you only want to change the create date, then do this:
 ```
 exiftool "-filecreatedate<mediacreatedate" ./*
+```
+
+Change all times to creation data/original date
+```
+exiftool "-filemodifydate<createdate" "-filecreatedate<createdate" "-filemodifydate<datetimeoriginal" "-filecreatedate<datetimeoriginal" .
+```
+
+Fix File Modify data (sometimes needed for mac)
+```
+exiftool "-FileModifyDate<ModifyDate" .
 ```
 
 ## Fix iPhone Live Photos exported as .JPG
