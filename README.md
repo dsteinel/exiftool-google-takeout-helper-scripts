@@ -40,7 +40,7 @@ exiftool -r -d %s -tagsfromfile "%d/%F.json" "-DateTimeOriginal<PhotoTakenTimeTi
 
 ## Show all data infos
 ```
-exiftool -time:all -G -a -s FILE
+exiftool -s -time:all FILE
 ```
 
 
@@ -84,3 +84,12 @@ Navigate to a directory and run (reminder: `.` is the current directory you're i
 ```
 find . -name "*-edited.jpg" -type f -delete
 ```
+
+## Change filename to a date
+Change all recursively to the file modification date like: YYYYMMDD_HH_MM_SS.
+I find the FileModifyDate on most of the files and it usually only fails for a tiny amount of images.
+If it fails for a particular file, use the "Show all data infos" on this file to list possible time properties.
+```
+exiftool '-Filename<FileModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r .
+```
+
