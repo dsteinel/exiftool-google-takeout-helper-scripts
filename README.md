@@ -91,5 +91,8 @@ I find the FileModifyDate on most of the files and it usually only fails for a t
 If it fails for a particular file, use the "Show all data infos" on this file to list possible time properties.
 ```
 exiftool '-Filename<FileModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r .
+
+For some files I also had to run (mp4 and movs mostly):
+exiftool '-Filename<ModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r .
 ```
 
