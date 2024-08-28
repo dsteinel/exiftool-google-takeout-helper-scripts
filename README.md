@@ -90,9 +90,9 @@ Change all recursively to the file modification date like: YYYYMMDD_HH_MM_SS.
 I find the FileModifyDate on most of the files and it usually only fails for a tiny amount of images.
 If it fails for a particular file, use the "Show all data infos" on this file to list possible time properties.
 ```
-exiftool '-Filename<FileModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r .
+exiftool '-Filename<FileModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
 
 For some files I also had to run (mp4 and movs mostly):
-exiftool '-Filename<ModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r .
+exiftool '-Filename<ModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
 ```
 
