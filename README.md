@@ -93,6 +93,6 @@ If it fails for a particular file, use the "Show all data infos" on this file to
 exiftool '-Filename<DateTimeOriginal' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
 
 For some files I also had to run (mp4 and movs mostly):
-exiftool '-Filename<ModifyDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
+exiftool '-Filename<CreateDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
 ```
 
