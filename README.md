@@ -52,10 +52,6 @@ Mp4 files dont have *datetimeoriginal*, but they use *mediacreatedate* so we nee
 ```
 exiftool "-filemodifydate<mediacreatedate" "-filecreatedate<mediacreatedate" ./*
 ```
-If you only want to change the create date, then do this:
-```
-exiftool "-filecreatedate<mediacreatedate" ./*
-```
 
 Change all times to creation data/original date
 ```
@@ -66,6 +62,40 @@ Fix File Modify data (sometimes needed for mac)
 ```
 exiftool "-FileModifyDate<ModifyDate" .
 ```
+
+## Change filename to a date
+Change all recursively to the file modification date like: YYYYMMDD_HH_MM_SS.
+I find the FileModifyDate on most of the files and it usually only fails for a tiny amount of images.
+If it fails for a particular file, use the "Show all data infos" on this file to list possible time properties.
+```
+exiftool '-Filename<DateTimeOriginal' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
+
+For some files I also had to run (mp4 and movs mostly):
+exiftool '-Filename<CreateDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
+```
+
+## Change Timestamp to original file date and rename it on one go
+
+This command performs a deep synchronization of file system dates and renames all files (Images, MOV, and MP4) based on their internal "true" creation timestamp.
+
+```
+exiftool -r -P -d %Y%m%d_%H%M%S%%-c.%%le \
+"-FileModifyDate<ModifyDate" \
+"-FileModifyDate<CreateDate" \
+"-FileCreateDate<CreateDate" \
+"-FileModifyDate<MediaCreateDate" \
+"-FileCreateDate<MediaCreateDate" \
+"-FileModifyDate<DateTimeOriginal" \
+"-FileCreateDate<DateTimeOriginal" \
+"-Filename<ModifyDate" \
+"-Filename<CreateDate" \
+"-Filename<MediaCreateDate" \
+"-Filename<DateTimeOriginal" \
+.
+```
+
+
+---
 
 ## Fix iPhone Live Photos exported as .JPG
 In my specific case, Live photos would be extracted as a .JPG and a (1).JPG instead of a .JPG and a .MOV. So I ran exiftool to correct this for files that have a filetype MOV. The script checks the filetype in the EXIF data of the file. If it's a .MOV, it will change the extension of the file to .MOV
@@ -83,16 +113,5 @@ On some of the directories, Google used to adjust contrast/colors for every imag
 Navigate to a directory and run (reminder: `.` is the current directory you're in)
 ```
 find . -name "*-edited.jpg" -type f -delete
-```
-
-## Change filename to a date
-Change all recursively to the file modification date like: YYYYMMDD_HH_MM_SS.
-I find the FileModifyDate on most of the files and it usually only fails for a tiny amount of images.
-If it fails for a particular file, use the "Show all data infos" on this file to list possible time properties.
-```
-exiftool '-Filename<DateTimeOriginal' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
-
-For some files I also had to run (mp4 and movs mostly):
-exiftool '-Filename<CreateDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
 ```
 
