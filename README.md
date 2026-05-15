@@ -1,117 +1,83 @@
 # exiftool-google-takeout-helper-scripts
 
-Most of the stuff is taken from here:
-[google-photos-takeout-scripts](https://github.com/m1rkwood/google-photos-takeout-scripts/tree/main) I only made some small adjustments to fit my needs.
+A collection of scripts and commands to fix incorrect creation dates and missing metadata in media exported via Google Takeout.
+
+## 🚀 Quick Start: Using the Script
+
+The easiest way to fix your media is to use the interactive `script.sh`.
+
+1. **Ensure Exiftool is installed** (see [Installation](#install-exiftools)).
+2. **Make the script executable**:
+   ```bash
+   chmod +x script.sh
+   ```
+3. **Run the script**:
+   ```bash
+   ./script.sh
+   ```
+
+### Script Tasks:
+1. **Show all EXIF data**: Quickly inspect all time-related metadata for a specific file.
+2. **Google Takeout: Apply JSON metadata**: The "Main Task". It takes the `.json` sidecar files provided by Google and integrates timestamps and GPS data directly into your images and videos.
+3. **Repair & Sync all dates**: A powerful "Super-Fix" that:
+    - Repairs zeroed-out metadata using the file system date as a fallback.
+    - Synchronizes internal metadata (DateTimeOriginal, CreateDate, etc.) across photos and videos.
+    - Forces the File System (Finder/Explorer) "Date Created" and "Date Modified" to match the internal metadata.
+4. **Change filename to date**: Renames your files to the `YYYYMMDD_HHMMSS.ext` format based on the best available timestamp.
+
+---
 
 ## WHY?
-Google takeout gives you the images with a wrong creation date. All media will have the export date as creation date. This is incorrect and needs to be changed.
+Google Takeout gives you images where the file system "Creation Date" is set to the date of the export, not the date the photo was taken. This makes sorting in Finder or Windows Explorer nearly impossible without fixing the metadata and file system attributes.
 
-## Get all data from google
-Follow the instructions from google takeout
+## Get all data from Google
+Follow the instructions from Google Takeout to export your Google Photos library.
 
 ## Extract all archives
-After extracting all zip files with (please verify)
-```
+After extracting all zip files with:
+```bash
 find . -name "*.zip" | xargs -I {} tar -xvf {} -C /path/to/extract/to
 ```
 
 ## Install Exiftools
-### Windows
 ### Mac
-
-## Rename data if needed
-
-## Use json and apply to image
-For macOs, if you have brew installed, just install it using the brew install exiftool command. Otherwise, you can download the package here and install it manually: https://exiftool.org/install.html
-
-This command will take the photoTakenTime { timestamp: '' } out of the .json associated to a picture and integrate it as EXIF data in the picture as DateTimeOriginal. See the "useful scripts" section below to find additional tags that you can add to this command to get more data back into your pictures.
-
-This is my main task to also include geo data from the json and inplement it in the media. This works with most media formats (jpg, jpeg, heic, png, mov, mp4). NEF files don't seem to work.
-
+If you have Homebrew installed:
+```bash
+brew install exiftool
 ```
-exiftool -r -d %s -tagsfromfile "%d/%F.json" "-GPSAltitude<GeoDataAltitude" "-GPSLatitude<GeoDataLatitude" "-GPSLatitudeRef<GeoDataLatitude" "-GPSLongitude<GeoDataLongitude" "-GPSLongitudeRef<GeoDataLongitude" "-DateTimeOriginal<PhotoTakenTimeTimestamp" "-FileCreateDate<PhotoTakenTimeTimestamp" "-FileModifyDate<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
-```
+Otherwise, download the package from [exiftool.org](https://exiftool.org/install.html).
 
-Use this one if you only want to replace the creation date of the image:
-
-```
-exiftool -r -d %s -tagsfromfile "%d/%F.json" "-DateTimeOriginal<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
-```
-
-## Show all data infos
-```
-exiftool -s -time:all FILE
-```
-
-
-## Change "Date modified" to "Date created" in file information
-```
-cd into/parent/directory/ && exiftool "-filemodifydate<datetimeoriginal" "-filecreatedate<datetimeoriginal" ./*
-```
-Mp4 files dont have *datetimeoriginal*, but they use *mediacreatedate* so we need to change the command to the following in order to change the modify and create date to the original create date:
-```
-exiftool "-filemodifydate<mediacreatedate" "-filecreatedate<mediacreatedate" ./*
-```
-
-Change all times to creation data/original date
-```
-exiftool "-filemodifydate<createdate" "-filecreatedate<createdate" "-filemodifydate<datetimeoriginal" "-filecreatedate<datetimeoriginal" .
-```
-
-Fix File Modify data (sometimes needed for mac)
-```
-exiftool "-FileModifyDate<ModifyDate" .
-```
-
-## Change filename to a date
-Change all recursively to the file modification date like: YYYYMMDD_HH_MM_SS.
-I find the FileModifyDate on most of the files and it usually only fails for a tiny amount of images.
-If it fails for a particular file, use the "Show all data infos" on this file to list possible time properties.
-```
-exiftool '-Filename<DateTimeOriginal' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
-
-For some files I also had to run (mp4 and movs mostly):
-exiftool '-Filename<CreateDate' -d %Y%m%d_%H%M%S%%-c.%%le -r -P .
-```
-
-## Change Timestamp to original file date and rename it on one go
-
-This command performs a deep synchronization of file system dates and renames all files (Images, MOV, and MP4) based on their internal "true" creation timestamp.
-
-```
-exiftool -r -P -d %Y%m%d_%H%M%S%%-c.%%le \
-"-FileModifyDate<ModifyDate" \
-"-FileModifyDate<CreateDate" \
-"-FileCreateDate<CreateDate" \
-"-FileModifyDate<MediaCreateDate" \
-"-FileCreateDate<MediaCreateDate" \
-"-FileModifyDate<DateTimeOriginal" \
-"-FileCreateDate<DateTimeOriginal" \
-"-Filename<ModifyDate" \
-"-Filename<CreateDate" \
-"-Filename<MediaCreateDate" \
-"-Filename<DateTimeOriginal" \
-.
-```
-
+### Windows
+Download the executable from [exiftool.org](https://exiftool.org/install.html) and follow the installation instructions.
 
 ---
 
-## Fix iPhone Live Photos exported as .JPG
-In my specific case, Live photos would be extracted as a .JPG and a (1).JPG instead of a .JPG and a .MOV. So I ran exiftool to correct this for files that have a filetype MOV. The script checks the filetype in the EXIF data of the file. If it's a .MOV, it will change the extension of the file to .MOV
+## Manual Commands (for reference)
+
+### Use JSON and apply to image
+This command takes the `photoTakenTime` from the `.json` and integrates it as EXIF data. It also includes GeoData.
+```bash
+exiftool -r -d %s -tagsfromfile "%d/%F.json" "-GPSAltitude<GeoDataAltitude" "-GPSLatitude<GeoDataLatitude" "-GPSLatitudeRef<GeoDataLatitude" "-GPSLongitude<GeoDataLongitude" "-GPSLongitudeRef<GeoDataLongitude" "-DateTimeOriginal<PhotoTakenTimeTimestamp" "-CreateDate<PhotoTakenTimeTimestamp" "-ModifyDate<PhotoTakenTimeTimestamp" "-FileCreateDate<PhotoTakenTimeTimestamp" "-FileModifyDate<PhotoTakenTimeTimestamp" --ext json -overwrite_original -progress <directory_name>
 ```
+
+### Change filename to a date
+```bash
+exiftool -r -P --ext json '-Filename<FileModifyDate' '-Filename<ModifyDate' '-Filename<CreateDate' '-Filename<DateTimeOriginal' -d %Y%m%d_%H%M%S%%-c.%%le <directory_name>
+```
+
+### Fix iPhone Live Photos exported as .JPG
+If Live Photos are exported as `.JPG` but are actually `.MOV` files, this command fixes the extension:
+```bash
 exiftool -r -ext jpg -overwrite_original -filename=%f.MOV -if '$filetype eq "MOV"' -progress <directory_name>
 ```
 
-### Remove all .json files
-Remove all the .json in the current directory
-```
+### Cleanup
+**Remove all .json files:**
+```bash
 find . -name "*.json" -type f -delete
 ```
-### Remove -edited files
-On some of the directories, Google used to adjust contrast/colors for every image. I chose to remove that for some folders.
-Navigate to a directory and run (reminder: `.` is the current directory you're in)
-```
+
+**Remove -edited files:**
+```bash
 find . -name "*-edited.jpg" -type f -delete
 ```
-
